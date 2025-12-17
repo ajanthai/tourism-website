@@ -1,4 +1,7 @@
-const supabase = require('../lib/supabaseClient');
+import { Resend } from "resend";
+const supabase = require("../lib/supabaseClient");
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 module.exports = async function (context, req) {
   const { name, email, message } = req.body || {};
@@ -6,27 +9,45 @@ module.exports = async function (context, req) {
   if (!name || !email || !message) {
     context.res = {
       status: 400,
-      body: { error: 'Name, email, and message are required' }
+      body: { error: "Name, email, and message are required" },
     };
     return;
   }
 
+  //context.log("RESEND_API_KEY exists:", !!process.env.RESEND_API_KEY);
+  //context.log("ADMIN_EMAIL:", process.env.ADMIN_EMAIL);
+
   try {
-    const { error } = await supabase
-      .from('inquiries')
-      .insert([{ name, email, message }]);
+    // 1️⃣ Save to DB
+    // const { error } = await supabase
+    //   .from("inquiries")
+    //   .insert([{ name, email, message }]);
 
-    if (error) throw error;
+    // if (error) throw error;
 
+    // 2️⃣ Send email
+    await resend.emails.send({
+      from: "Gravityland Tours <onboarding@resend.dev>",
+      to: process.env.ADMIN_EMAIL,
+      subject: "New Tour Inquiry",
+      html: `
+        <p><strong>Name:</strong> ${name}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p>${message}</p>
+      `,
+    });
+
+    // 3️⃣ Respond LAST
     context.res = {
       status: 201,
-      body: { success: true }
+      body: { success: true },
     };
   } catch (err) {
-    context.log.error(err);
+    context.log.error("Inquiry error:", err);
+
     context.res = {
       status: 500,
-      body: { error: 'Failed to save inquiry' }
+      body: { error: "Failed to process inquiry" },
     };
   }
 };

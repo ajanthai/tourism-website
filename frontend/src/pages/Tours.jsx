@@ -26,6 +26,18 @@ export default function Tours() {
           <h2>{tour.title}</h2>
           <p>{tour.description}</p>
           <Link to={`/tours/${tour.slug}`}>View Details</Link>
+          {tour.image_url && (
+            <img
+              src={tour.image_url}
+              alt={tour.title || 'Tour image'}
+              style={{
+                width: '100%',
+                maxHeight: '200px',
+                objectFit: 'cover',
+                borderRadius: '8px'
+              }}
+            />
+          )}
         </div>
       ))}
     </div>

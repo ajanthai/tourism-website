@@ -1,13 +1,14 @@
-import { Link } from 'react-router-dom';
+import { useEffect } from "react";
+import { setSEO } from "../utils/seo";
 
 export default function Home() {
-  return (
-    <div>
-      <h1>Gravity Tours Sri Lanka</h1>
-      <nav>
-        <Link to="/tours">Tours</Link> |{' '}
-        <Link to="/contact">Contact</Link>
-      </nav>
-    </div>
-  );
+  useEffect(() => {
+    setSEO({
+      title: "Gravity Tours Sri Lanka | Explore Paradise",
+      description:
+        "Discover unforgettable tours in Sri Lanka. Beaches, wildlife, culture and adventure with Gravity Tours.",
+    });
+  }, []);
+
+  return <h1>Welcome to Gravity Tours</h1>;
 }

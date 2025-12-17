@@ -19,12 +19,38 @@ export default function TourDetail() {
       .catch(() => setLoading(false));
   }, [slug]);
 
+  // update document title and meta description when we have tour data
+  useEffect(() => {
+    if (!tour) return;
+    try {
+      document.title = `${tour.title} | Gravity Tours`;
+      const desc = tour.description ? tour.description.slice(0, 150) : '';
+      const meta = document.querySelector('meta[name="description"]');
+      if (meta) meta.setAttribute('content', desc);
+    } catch {
+      // ignore in environments without DOM
+    }
+  }, [tour]);
+
   if (loading) return <p>Loading tour...</p>;
   if (!tour) return <p>Tour not found</p>;
 
   return (
     <div>
       <Link to="/tours">← Back to tours</Link>
+
+      {tour.image_url && (
+        <img
+          src={tour.image_url}
+          alt={tour.title || 'Tour image'}
+          style={{
+            width: '100%',
+            maxHeight: '400px',
+            objectFit: 'cover',
+            borderRadius: '12px'
+          }}
+        />
+      )}
 
       <h1>{tour.title}</h1>
       <p><strong>Location:</strong> {tour.location}</p>

@@ -1,3 +1,5 @@
+import Layout from "./layout/Layout";
+
 import { Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import Tours from './pages/Tours';
@@ -7,10 +9,39 @@ import Contact from './pages/Contact';
 export default function App() {
   return (
     <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/tours" element={<Tours />} />
-      <Route path="/tours/:slug" element={<TourDetail />} />
-      <Route path="/contact" element={<Contact />} />
+      <Route
+        path="/"
+        element={
+          <Layout>
+            <Home />
+          </Layout>
+        }
+      />
+      <Route
+        path="/tours"
+        element={
+          <Layout>
+            <Tours />
+          </Layout>
+        }
+      />
+      <Route
+        path="/tours/:slug"
+        element={
+          <Layout>
+            <TourDetail />
+          </Layout>
+        }
+      />
+
+      <Route
+        path="/contact"
+        element={
+          <Layout>
+            <Contact />
+          </Layout>
+        }
+      />
     </Routes>
   );
 }

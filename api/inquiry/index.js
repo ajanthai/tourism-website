@@ -1,5 +1,4 @@
-import { Resend } from "resend";
-const supabase = require("../lib/supabaseClient");
+const { Resend } = require("resend");
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -15,14 +14,6 @@ module.exports = async function (context, req) {
   }
 
   try {
-    // 1️⃣ Save to DB
-    const { error } = await supabase
-      .from("inquiries")
-      .insert([{ name, email, message }]);
-
-    if (error) throw error;
-
-    // 2️⃣ Send email
     await resend.emails.send({
       from: "Gravityland Tours <onboarding@resend.dev>",
       to: process.env.ADMIN_EMAIL,
@@ -34,17 +25,16 @@ module.exports = async function (context, req) {
       `,
     });
 
-    // 3️⃣ Respond LAST
     context.res = {
       status: 201,
       body: { success: true },
     };
   } catch (err) {
-    context.log.error("Inquiry error:", err);
+    context.log.error("Email send failed:", err);
 
     context.res = {
       status: 500,
-      body: { error: "Failed to process inquiry" },
+      body: { error: "Failed to send email" },
     };
   }
 };

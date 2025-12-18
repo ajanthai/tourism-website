@@ -30,10 +30,7 @@ module.exports = async function (context, req) {
   }
 
   if (!email.includes('@')) {
-    return {
-        statusCode: 400,
-        body: JSON.stringify({ error: 'Invalid email address' })
-    };
+    error(context, 400, "Invalid email address");
   }
 
   try {
@@ -82,9 +79,6 @@ module.exports = async function (context, req) {
   } catch (err) {
     context.log.error("Inquiry error:", err);
 
-    context.res = {
-      status: 500,
-      body: { error: "Failed to process inquiry" },
-    };
+    error(context, 500, "Failed to process inquiry");
   }
 };

@@ -37,7 +37,7 @@ module.exports = async function (context, req) {
     // 3️ Send confirmation email to customer (non-blocking)
     try {
       await resend.emails.send({
-        from: "Gravityland Tours <ajanthai@gmail.com>",
+        from: "Gravityland Tours <onboarding@resend.dev>",
         to: email,
         subject: "We received your inquiry",
         html: `

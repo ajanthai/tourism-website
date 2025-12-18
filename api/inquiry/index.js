@@ -1,26 +1,39 @@
-import { successResponse, errorResponse } from '../utils/response';
+//import { successResponse, errorResponse } from '../utils/response';
 const { Resend } = require("resend");
 const supabase = require("../lib/supabaseClient");
-const rateLimiter = require('../_utils/rateLimiter');
+//const rateLimiter = require('../_utils/rateLimiter');
 
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 module.exports = async function (context, req) {
   const { name, email, message } = req.body || {};
-    const rate = rateLimiter(req);
+    // const rate = rateLimiter(req);
 
-    if (!rate.allowed) {
-        return errorResponse(context, 429, 'Too many requests. Please try again later.');
-    }
+    // if (!rate.allowed) {
+    //     context.res = {
+    //         status: 429,
+    //         body: {
+    //             error: 'Too many requests. Please try again later.',
+    //         },
+    //     };
+    //     return;
+    // }
 
 
   if (!name || !email || !message) {
-    return errorResponse(context, 400, 'Name, email, and message are required');
+    context.res = {
+      status: 400,
+      body:  { error: "Name, email, and message are required" }
+    };
+    return;
   }
 
   if (!email.includes('@')) {
-    return errorResponse(context, 400, 'Invalid email address');
+    return {
+        statusCode: 400,
+        body: JSON.stringify({ error: 'Invalid email address' })
+    };
   }
 
   try {
@@ -65,10 +78,16 @@ module.exports = async function (context, req) {
     }
 
     // 4 Respond LAST
-    successResponse(context, 201, { success: true });
+    context.res = {
+      status: 201,
+      body: { success: true },
+    };
   } catch (err) {
     context.log.error("Inquiry error:", err);
 
-    errorResponse(context, 500, "Failed to process inquiry");
+    context.res = {
+      status: 500,
+      body: { error: "Failed to process inquiry" },
+    };
   }
 };

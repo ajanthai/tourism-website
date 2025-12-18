@@ -30,7 +30,10 @@ module.exports = async function (context, req) {
   }
 
   if (!email.includes('@')) {
-    error(context, 400, "Invalid email address");
+    return {
+        statusCode: 400,
+        body: JSON.stringify({ error: 'Invalid email address' })
+    };
   }
 
   try {

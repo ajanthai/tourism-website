@@ -15,14 +15,14 @@ module.exports = async function (context, req) {
   }
 
   try {
-    // 1️⃣ Save to DB
+    // 1️ Save to DB
     const { error } = await supabase
       .from("inquiries")
       .insert([{ name, email, message }]);
 
     if (error) throw error;
 
-    // 2️⃣ Send email
+    // 2️ Send email
     await resend.emails.send({
       from: "Gravityland Tours <onboarding@resend.dev>",
       to: process.env.ADMIN_EMAIL,
@@ -34,7 +34,28 @@ module.exports = async function (context, req) {
       `,
     });
 
-    // 3️⃣ Respond LAST
+    // 3️ Send confirmation email to customer (non-blocking)
+    try {
+      await resend.emails.send({
+        from: "Gravityland Tours <ajanthai@gmail.com>",
+        to: email,
+        subject: "We received your inquiry",
+        html: `
+          <p>Hi ${name},</p>
+
+          <p>Thank you for contacting <strong>Gravityland Tours</strong>.</p>
+
+          <p>We’ve received your message and will get back to you within 24 hours.</p>
+
+          <p>Warm regards,<br/>
+          Gravityland Tours</p>
+        `,
+      });
+    } catch (err) {
+      context.log("Customer email failed:", err);
+    }
+
+    // 4 Respond LAST
     context.res = {
       status: 201,
       body: { success: true },

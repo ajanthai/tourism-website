@@ -78,10 +78,7 @@ module.exports = async function (context, req) {
     }
 
     // 4 Respond LAST
-    context.res = {
-      status: 201,
-      body: { success: true },
-    };
+    success(context, 201, { success: true });
   } catch (err) {
     context.log.error("Inquiry error:", err);
 

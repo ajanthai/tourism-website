@@ -1,4 +1,4 @@
-//const { successResponse, errorResponse } = require('../utils/response');
+const { successResponse, errorResponse } = require('../utils/response');
 const { Resend } = require("resend");
 const supabase = require("../lib/supabaseClient");
 const rateLimiter = require('../utils/rateLimiter');

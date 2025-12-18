@@ -1,4 +1,4 @@
-//import { successResponse, errorResponse } from '../utils/response';
+import { successResponse, errorResponse } from '../utils/response';
 const { Resend } = require("resend");
 const supabase = require("../lib/supabaseClient");
 //const rateLimiter = require('../_utils/rateLimiter');
@@ -22,17 +22,11 @@ module.exports = async function (context, req) {
 
 
   if (!name || !email || !message) {
-    context.res = {
-      status: 400,
-      body:  { error: "Name, email, and message are required" }
-    };
-    return;
+    return errorResponse(context, 400, 'Name, email, and message are required');
   }
 
   if (!email.includes('@')) {
-    return {
-        statusCode: 400,
-        body: JSON.stringify({ error: 'Invalid email address' })
+    return errorResponse(context, 400, 'Invalid email address');
     };
   }
 

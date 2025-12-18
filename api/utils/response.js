@@ -1,21 +1,26 @@
-// api/utils/response.js
+function success(body, status) {
+  return {
+    status: status || 200,
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: body || {}
+  };
+}
 
-export const jsonHeaders = {
-  'Content-Type': 'application/json',
+function error(message, status) {
+  return {
+    status: status || 500,
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: {
+      error: message || 'Server error'
+    }
+  };
+}
+
+module.exports = {
+  success,
+  error
 };
-
-export function success(context, status = 200, body = {}) {
-  context.res = {
-    status,
-    headers: jsonHeaders,
-    body,
-  };
-}
-
-export function error(context, status = 500, message = 'Something went wrong') {
-  context.res = {
-    status,
-    headers: jsonHeaders,
-    body: { error: message },
-  };
-}

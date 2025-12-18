@@ -1,13 +1,13 @@
-import { useState } from 'react';
+import { useState } from "react";
 
 export default function Contact() {
   const [form, setForm] = useState({
-    name: '',
-    email: '',
-    message: ''
+    name: "",
+    email: "",
+    message: "",
   });
 
-  const [status, setStatus] = useState(null);
+  const [status, setStatus] = useState(null); // success | error | null
   const [loading, setLoading] = useState(false);
 
   function handleChange(e) {
@@ -20,25 +20,28 @@ export default function Contact() {
     setStatus(null);
 
     try {
-      const res = await fetch('/api/inquiry', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form)
+      const res = await fetch("/api/inquiry", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
       });
 
-      if (!res.ok) throw new Error();
+      if (!res.ok) {
+        throw new Error("Request failed");
+      }
 
-      setStatus('success');
-      setForm({ name: '', email: '', message: '' });
-    } catch {
-      setStatus('error');
+      setStatus("success");
+      setForm({ name: "", email: "", message: "" });
+    } catch (error) {
+      console.error("Inquiry error:", error);
+      setStatus("error");
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div>
+    <div style={{ maxWidth: "500px", margin: "0 auto" }}>
       <h1>Contact Us</h1>
 
       <form onSubmit={handleSubmit}>
@@ -68,12 +71,21 @@ export default function Contact() {
         />
 
         <button type="submit" disabled={loading}>
-          {loading ? 'Sending...' : 'Send Message'}
+          {loading ? "Sending..." : "Send Message"}
         </button>
       </form>
 
-      {status === 'success' && <p>Thanks! We’ll contact you soon.</p>}
-      {status === 'error' && <p>Something went wrong. Please try again.</p>}
+      {status === "success" && (
+        <p style={{ color: "green" }}>
+          ✅ Thanks! We’ll contact you soon.
+        </p>
+      )}
+
+      {status === "error" && (
+        <p style={{ color: "red" }}>
+          ❌ Something went wrong. Please try again.
+        </p>
+      )}
     </div>
   );
 }

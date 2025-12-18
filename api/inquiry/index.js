@@ -11,21 +11,13 @@ module.exports = async function (context, req) {
     const rate = rateLimiter(req);
 
     if (!rate.allowed) {
-        context.res = {
-            status: 429,
-            body: {
-                error: 'Too many requests. Please try again later.',
-            },
-        };
+        context.res = error("Too many requests. Please try again later.", 429);
         return;
     }
 
 
   if (!name || !email || !message) {
-    context.res = {
-      status: 400,
-      body:  { error: "Name, email, and message are required" }
-    };
+    context.res = error("Name, email, and message are required", 400);
     return;
   }
 

@@ -1,9 +1,19 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { setSEO } from "../utils/seo";
 
 export default function Tours() {
   const [tours, setTours] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // SEO — runs once
+  useEffect(() => {
+    setSEO({
+      title: "Sri Lanka Tour Packages | Gravity Tours",
+      description:
+        "Explore curated Sri Lanka tour packages including beaches, wildlife safaris, cultural heritage, and adventure tours.",
+    });
+  }, []);
 
   useEffect(() => {
     fetch('/api/tours')

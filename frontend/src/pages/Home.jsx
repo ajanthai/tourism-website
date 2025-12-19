@@ -10,5 +10,5 @@ export default function Home() {
     });
   }, []);
 
-  return <h1>Welcome to Gravity Tours</h1>;
+  return <h1>Welcome to Gravityland Tours</h1>;
 }

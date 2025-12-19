@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { setSEO } from "../utils/seo";
 
 export default function Contact() {
   const [form, setForm] = useState({
@@ -10,6 +11,14 @@ export default function Contact() {
   const [status, setStatus] = useState(null); // success | error | null
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    setSEO({
+      title: "Contact Gravity Tours | Sri Lanka Travel Experts",
+      description:
+        "Contact Gravity Tours to plan your perfect Sri Lanka holiday. Fast responses and custom itineraries.",
+    });
+  }, []);
+  
   function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value });
   }

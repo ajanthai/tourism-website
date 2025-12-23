@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { setSEO } from "../utils/seo";
 
 export default function Contact() {
@@ -18,7 +18,7 @@ export default function Contact() {
         "Contact Gravity Tours to plan your perfect Sri Lanka holiday. Fast responses and custom itineraries.",
     });
   }, []);
-  
+
   function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value });
   }

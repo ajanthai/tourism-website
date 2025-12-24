@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { setSEO } from "../utils/seo";
 
 export default function Contact() {

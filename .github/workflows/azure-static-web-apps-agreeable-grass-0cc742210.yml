@@ -37,7 +37,6 @@ jobs:
 
           app_location: "frontend"
           api_location: "api"
-          output_location: "dist"
 
           # 🔴 THIS IS THE FIX
           skip_app_build: true

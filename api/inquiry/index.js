@@ -36,7 +36,7 @@ module.exports = async function (context, req) {
 
     // 2️ Send email
     await resend.emails.send({
-      from: "Gravityland Tours <onboarding@resend.dev>",
+      from: "Gravityland Tours <noreply@gravitylandtours.com>",
       to: process.env.ADMIN_EMAIL,
       subject: "New Tour Inquiry",
       html: `
@@ -49,7 +49,7 @@ module.exports = async function (context, req) {
     // 3️ Send confirmation email to customer (non-blocking)
     try {
       await resend.emails.send({
-        from: "Gravityland Tours <onboarding@resend.dev>",
+        from: "Gravityland Tours <noreply@gravitylandtours.com>",
         to: email,
         subject: "We received your inquiry",
         html: `

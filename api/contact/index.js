@@ -4,7 +4,7 @@ const supabase = require("../lib/supabaseClient");
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 module.exports = async function (context, req) {
-  const { name, email, message } = req.body || {};
+  const { name, email, whatsapp, tour, country, month, travelers, message } = req.body || {};
 
   if (!name || !email || !message) {
     context.res = {
@@ -30,6 +30,8 @@ module.exports = async function (context, req) {
       html: `
         <p><strong>Name:</strong> ${name}</p>
         <p><strong>Email:</strong> ${email}</p>
+        <p><strong>WhatsApp:</strong> ${whatsapp}</p>
+        <p><strong>Tour:</strong> ${tour}</p>
         <p>${message}</p>
       `,
     });

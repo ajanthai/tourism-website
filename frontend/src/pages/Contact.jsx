@@ -1,15 +1,34 @@
 import { useState, useEffect } from "react";
 import { setSEO } from "../utils/seo";
+import WhatsAppCTA from "../components/WhatsAppCTA";
 
 export default function Contact() {
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    message: "",
-  });
+  const TOURS = [
+  "Not sure yet",
+  "Sri Lanka Highlights",
+  "Cultural Triangle Tour",
+  "Hill Country Experience",
+  "Wildlife & Safari Tour",
+  "Beach & Relaxation Tour",
+  "Custom Tour"
+];
 
-  const [status, setStatus] = useState(null); // success | error | null
-  const [loading, setLoading] = useState(false);
+const [formData, setFormData] = useState({
+  name: "",
+  email: "",
+  whatsapp: "",
+  tour: "Not sure yet",
+  month: "",
+  travelers: "",
+  country: "",
+  message: ""
+});
+
+const [errors, setErrors] = useState({});
+const [success, setSuccess] = useState(false);
+
+const [loading, setLoading] = useState(false);
+const [tour, setTour] = useState("");
 
   useEffect(() => {
     setSEO({
@@ -19,35 +38,64 @@ export default function Contact() {
     });
   }, []);
   
-  function handleChange(e) {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e) => {
+  const { name, value } = e.target;
+  setFormData(prev => ({ ...prev, [name]: value }));
+};
+
+const validate = () => {
+  const newErrors = {};
+
+  if (!formData.name.trim()) newErrors.name = "Full name is required";
+  if (!formData.email.trim()) {
+    newErrors.email = "Email is required";
+  } else if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
+    newErrors.email = "Invalid email address";
   }
 
-  async function handleSubmit(e) {
-    e.preventDefault();
-    setLoading(true);
-    setStatus(null);
+  if (!formData.whatsapp.trim())
+    newErrors.whatsapp = "WhatsApp number is required";
 
-    try {
-      const res = await fetch("/api/inquiry", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
+  if (!formData.message.trim())
+    newErrors.message = "Message is required";
 
-      if (!res.ok) {
-        throw new Error("Request failed");
-      }
+  setErrors(newErrors);
+  return Object.keys(newErrors).length === 0;
+};
 
-      setStatus("success");
-      setForm({ name: "", email: "", message: "" });
-    } catch (error) {
-      console.error("Inquiry error:", error);
-      setStatus("error");
-    } finally {
-      setLoading(false);
-    }
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+  if (!validate()) return;
+
+  setLoading(true);
+  setSuccess(false);
+
+  try {
+    const res = await fetch("/api/inquiry", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData)
+    });
+
+    if (!res.ok) throw new Error("Failed");
+
+    setSuccess(true);
+    setFormData({
+      name: "",
+      email: "",
+      whatsapp: "",
+      tour: "Not sure yet",
+      month: "",
+      travelers: "",
+      country: "",
+      message: ""
+    });
+  } catch (err) {
+    setErrors({ submit: "Something went wrong. Please try again." });
+  } finally {
+    setLoading(false);
   }
+};
 
   return (
     <div style={{ maxWidth: "500px", margin: "0 auto" }}>
@@ -57,7 +105,7 @@ export default function Contact() {
         <input
           name="name"
           placeholder="Your name"
-          value={form.name}
+          value={formData.name}
           onChange={handleChange}
           required
         />
@@ -66,31 +114,57 @@ export default function Contact() {
           name="email"
           type="email"
           placeholder="Your email"
-          value={form.email}
+          value={formData.email}
           onChange={handleChange}
           required
         />
 
+        <input
+          type="text"
+          name="whatsapp"
+          placeholder="+94..."
+          value={formData.whatsapp}
+          onChange={handleChange}
+          required
+        />
+        {errors.whatsapp && <p className="error">{errors.whatsapp}</p>}
+
+        <label>
+          Tour Type *
+          <select
+            value={tour}
+            onChange={(e) => setTour(e.target.value)}
+            required
+          >
+            <option value="">Select a tour</option>
+            {TOURS.map((t) => (
+              <option key={t} value={t}>{t}</option>
+            ))}
+          </select>
+        </label>
+
         <textarea
           name="message"
           placeholder="Your message"
-          value={form.message}
+          value={formData.message}
           onChange={handleChange}
           required
         />
 
         <button type="submit" disabled={loading}>
-          {loading ? "Sending..." : "Send Message"}
+          {loading ? "Sending..." : "📩 Send Inquiry"}
         </button>
+        <WhatsAppCTA variant="inline" />
+
       </form>
 
-      {status === "success" && (
+      {success === true && (
         <p style={{ color: "green" }}>
           ✅ Thanks! We’ll contact you soon.
         </p>
       )}
 
-      {status === "error" && (
+      {errors === true && (
         <p style={{ color: "red" }}>
           ❌ Something went wrong. Please try again.
         </p>

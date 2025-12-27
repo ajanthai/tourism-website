@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { setSEO } from "../utils/seo";
+import WhatsAppCTA from "../components/WhatsAppCTA";
 
 export default function Contact() {
   const TOURS = [
@@ -26,8 +27,8 @@ const [formData, setFormData] = useState({
 const [errors, setErrors] = useState({});
 const [success, setSuccess] = useState(false);
 
-  const [status, setStatus] = useState(null); // success | error | null
-  const [loading, setLoading] = useState(false);
+const [loading, setLoading] = useState(false);
+const [tour, setTour] = useState("");
 
   useEffect(() => {
     setSEO({
@@ -128,11 +129,19 @@ const validate = () => {
         />
         {errors.whatsapp && <p className="error">{errors.whatsapp}</p>}
 
-        <select name="tour" value={formData.tour} onChange={handleChange}>
-          {TOURS.map(t => (
-            <option key={t} value={t}>{t}</option>
-          ))}
-        </select>
+        <label>
+          Tour Type *
+          <select
+            value={tour}
+            onChange={(e) => setTour(e.target.value)}
+            required
+          >
+            <option value="">Select a tour</option>
+            {TOURS.map((t) => (
+              <option key={t} value={t}>{t}</option>
+            ))}
+          </select>
+        </label>
 
         <textarea
           name="message"
@@ -143,8 +152,10 @@ const validate = () => {
         />
 
         <button type="submit" disabled={loading}>
-          {loading ? "Sending..." : "Send Message"}
+          {loading ? "Sending..." : "📩 Send Inquiry"}
         </button>
+        <WhatsAppCTA variant="inline" />
+
       </form>
 
       {success === true && (

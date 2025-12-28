@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
 import { setSEO } from "../utils/seo";
 import WhatsAppCTA from "../components/WhatsAppCTA";
-import { buildWhatsAppLink } from "../utils/whatsapp";
-import { FaWhatsapp } from "react-icons/fa";
 
 export default function Contact() {
   const TOURS = [
@@ -20,9 +18,12 @@ const [formData, setFormData] = useState({
   email: "",
   whatsapp: "",
   tour: "Not sure yet",
-  month: "",
   travelers: "",
   country: "",
+  pax: "",
+  startDate: "",
+  endDate: "",
+  budget: "",
   message: ""
 });
 
@@ -87,9 +88,12 @@ const validate = () => {
       email: "",
       whatsapp: "",
       tour: "Not sure yet",
-      month: "",
       travelers: "",
       country: "",
+      pax: "",
+      startDate: "",
+      endDate: "",
+      budget: "",
       message: ""
     });
   } catch {

@@ -7,9 +7,14 @@ const rateLimiter = require('../utils/rateLimiter');
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Build HTML for admin notification email
-const adminEmailHtml = ({ name, email, message }) => `
+const adminEmailHtml = ({ name, email, message, tour, pax, startDate, endDate, budget }) => `
   <p><strong>Name:</strong> ${name}</p>
   <p><strong>Email:</strong> ${email}</p>
+  <p><strong>Tour:</strong> ${tour}</p>
+  <p><strong>Pax:</strong> ${pax}</p>
+  <p><strong>Dates:</strong> ${startDate} → ${endDate}</p>
+  <p><strong>Budget:</strong> ${budget}</p>
+  <hr />
   <p>${message}</p>
 `;
 
@@ -67,7 +72,10 @@ const customerEmailHtml = ({ name, tour }) => `
 
 
 module.exports = async function (context, req) {
-  const { name, email, whatsapp, tour, country, month, travelers, message } = req.body || {};
+  const { name, email, whatsapp, tour, country, message, pax, startDate, endDate, budget } = req.body || {};
+  // print and check req body for all properties are received
+  context.log("Received inquiry data:", { name, email, whatsapp, tour, country, message, pax, startDate, endDate, budget });
+  console.log("Request body:", req.body);
   const rate = rateLimiter(req);
 
   if (!rate.allowed) {
@@ -90,7 +98,16 @@ module.exports = async function (context, req) {
     // 1️ Save to DB
     const { error } = await supabase
       .from("inquiries")
-      .insert([{ name, email, message }]);
+      .insert([{ name, 
+                email, 
+                message,
+                whatsapp,
+                pax,
+                start_date: startDate,
+                end_date: endDate,
+                budget,
+                tour,
+                country }]);
 
     if (error) throw error;
 

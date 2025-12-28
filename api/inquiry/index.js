@@ -114,7 +114,7 @@ module.exports = async function (context, req) {
     await resend.emails.send({
       from: "Gravityland Tours <noreply@gravitylandtours.com>",
       to: process.env.ADMIN_EMAIL,
-      subject: "New Tour Inquiry",
+      subject: `🚨 New Tour Inquiry – ${name}`,
       html: adminEmailHtml({ name, email, message, tour, pax, startDate, endDate, budget, country }),
     });
 
@@ -129,6 +129,14 @@ module.exports = async function (context, req) {
     } catch (err) {
       context.log("Customer email failed:", err);
     }
+
+    const adminWhatsappUrl =
+  `https://wa.me/94718336382?text=` +
+  encodeURIComponent(
+    `New inquiry from ${name}\nTour: ${tour}\nPax: ${pax}`
+  );
+
+context.log(`Admin WhatsApp alert: ${adminWhatsappUrl}`);
 
     // 4 Respond LAST
     success(context, 201, { success: true });

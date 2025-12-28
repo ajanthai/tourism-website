@@ -118,18 +118,6 @@ module.exports = async function (context, req) {
       html: adminEmailHtml({ name, email, message, tour, pax, startDate, endDate, budget, country }),
     });
 
-    // 3️ Send confirmation email to customer (non-blocking)
-    try {
-      await resend.emails.send({
-        from: "Gravityland Tours <noreply@gravitylandtours.com>",
-        to: email,
-        subject: "We received your inquiry",
-        html: customerEmailHtml({ name, tour}),
-      });
-    } catch (err) {
-      context.log("Customer email failed:", err);
-    }
-
     const adminWhatsappUrl =
   `https://wa.me/94718336382?text=` +
   encodeURIComponent(
@@ -137,6 +125,17 @@ module.exports = async function (context, req) {
   );
 
 context.log(`Admin WhatsApp alert: ${adminWhatsappUrl}`);
+    // 3️ Send confirmation email to customer (non-blocking)
+    try {
+      await resend.emails.send({
+        from: "Gravityland Tours <noreply@gravitylandtours.com>",
+        to: email,
+        subject: "We received your inquiry",
+        html: customerEmailHtml({ name, adminWhatsappUrl}),
+      });
+    } catch (err) {
+      context.log("Customer email failed:", err);
+    }
 
     // 4 Respond LAST
     success(context, 201, { success: true });

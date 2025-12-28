@@ -7,13 +7,14 @@ const rateLimiter = require('../utils/rateLimiter');
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Build HTML for admin notification email
-const adminEmailHtml = ({ name, email, message, tour, pax, startDate, endDate, budget }) => `
+const adminEmailHtml = ({ name, email, message, tour, pax, startDate, endDate, budget, country }) => `
   <p><strong>Name:</strong> ${name}</p>
   <p><strong>Email:</strong> ${email}</p>
   <p><strong>Tour:</strong> ${tour}</p>
   <p><strong>Pax:</strong> ${pax}</p>
   <p><strong>Dates:</strong> ${startDate} → ${endDate}</p>
   <p><strong>Budget:</strong> ${budget}</p>
+  <p><strong>Country:</strong> ${country}</p>
   <hr />
   <p>${message}</p>
 `;
@@ -73,9 +74,7 @@ const customerEmailHtml = ({ name, tour }) => `
 
 module.exports = async function (context, req) {
   const { name, email, whatsapp, tour, country, message, pax, startDate, endDate, budget } = req.body || {};
-  // print and check req body for all properties are received
-  context.log("Received inquiry data:", { name, email, whatsapp, tour, country, message, pax, startDate, endDate, budget });
-  console.log("Request body:", req.body);
+  
   const rate = rateLimiter(req);
 
   if (!rate.allowed) {
@@ -116,7 +115,7 @@ module.exports = async function (context, req) {
       from: "Gravityland Tours <noreply@gravitylandtours.com>",
       to: process.env.ADMIN_EMAIL,
       subject: "New Tour Inquiry",
-      html: adminEmailHtml({ name, email, message }),
+      html: adminEmailHtml({ name, email, message, tour, pax, startDate, endDate, budget, country }),
     });
 
     // 3️ Send confirmation email to customer (non-blocking)

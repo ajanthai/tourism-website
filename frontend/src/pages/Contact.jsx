@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { setSEO } from "../utils/seo";
 import WhatsAppCTA from "../components/WhatsAppCTA";
+import { buildWhatsAppLink } from "../utils/whatsapp";
+import { FaWhatsapp } from "react-icons/fa";
 
 export default function Contact() {
   const TOURS = [
@@ -154,7 +156,18 @@ const validate = () => {
         <button type="submit" disabled={loading}>
           {loading ? "Sending..." : "📩 Send Inquiry"}
         </button>
-        <WhatsAppCTA variant="inline" />
+        <a
+          href={buildWhatsAppLink({
+            tour: tour,
+            source: "Contact Page",
+          })}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 mt-4 text-green-600 font-semibold"
+        >
+          <FaWhatsapp size={20} color="#25d366"/>
+          Chat with us
+        </a>
 
       </form>
 

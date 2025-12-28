@@ -36,7 +36,7 @@ const customerEmailHtml = ({ name, tour }) => `
 
     <p>
       <a
-        href="https://wa.me/94XXXXXXXX"
+        href="https://wa.me/94718336382"
         style="
           display: inline-block;
           padding: 10px 16px;

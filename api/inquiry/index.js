@@ -6,14 +6,74 @@ const rateLimiter = require('../utils/rateLimiter');
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-module.exports = async function (context, req) {
-  const { name, email, message } = req.body || {};
-    const rate = rateLimiter(req);
+// Build HTML for admin notification email
+const adminEmailHtml = ({ name, email, message }) => `
+  <p><strong>Name:</strong> ${name}</p>
+  <p><strong>Email:</strong> ${email}</p>
+  <p>${message}</p>
+`;
 
-    if (!rate.allowed) {
-        context.res = error("Too many requests. Please try again later.", 429);
-        return;
-    }
+// Build HTML for customer confirmation email
+const customerEmailHtml = ({ name, tour }) => `
+  <div style="font-family: Arial, sans-serif; line-height: 1.6">
+    <h2>Hello ${name},</h2>
+
+    <p>
+      Thank you for contacting <strong>Gravityland Tours</strong> 🌿.
+      We’ve received your inquiry${tour ? ` about <strong>${tour}</strong>` : ""}.
+    </p>
+
+    <p>
+      Our team will review your message and get back to you shortly.
+    </p>
+
+    <hr />
+
+    <p>
+      📱 <strong>Need a faster response?</strong><br/>
+      Chat with us on WhatsApp:
+    </p>
+
+    <p>
+      <a
+        href="https://wa.me/94718336382"
+        style="
+          display: inline-block;
+          padding: 10px 16px;
+          background: #25D366;
+          color: white;
+          text-decoration: none;
+          border-radius: 6px;
+          font-weight: bold;
+        "
+      >
+        Chat on WhatsApp
+      </a>
+    </p>
+
+    <hr />
+
+    <p>
+      Warm regards,<br/>
+      <strong>Gravityland Tours</strong><br/>
+      🌍 www.gravitylandtours.com
+    </p>
+
+    <p style="font-size: 12px; color: #666">
+      This is an automated message. You can reply to this email if needed.
+    </p>
+  </div>
+`;
+
+
+module.exports = async function (context, req) {
+  const { name, email, whatsapp, tour, country, month, travelers, message } = req.body || {};
+  const rate = rateLimiter(req);
+
+  if (!rate.allowed) {
+      context.res = error("Too many requests. Please try again later.", 429);
+      return;
+  }
 
 
   if (!name || !email || !message) {
@@ -39,11 +99,7 @@ module.exports = async function (context, req) {
       from: "Gravityland Tours <noreply@gravitylandtours.com>",
       to: process.env.ADMIN_EMAIL,
       subject: "New Tour Inquiry",
-      html: `
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p>${message}</p>
-      `,
+      html: adminEmailHtml({ name, email, message }),
     });
 
     // 3️ Send confirmation email to customer (non-blocking)
@@ -52,16 +108,7 @@ module.exports = async function (context, req) {
         from: "Gravityland Tours <noreply@gravitylandtours.com>",
         to: email,
         subject: "We received your inquiry",
-        html: `
-          <p>Hi ${name},</p>
-
-          <p>Thank you for contacting <strong>Gravityland Tours</strong>.</p>
-
-          <p>We’ve received your message and will get back to you within 24 hours.</p>
-
-          <p>Warm regards,<br/>
-          Gravityland Tours</p>
-        `,
+        html: customerEmailHtml({ name, tour}),
       });
     } catch (err) {
       context.log("Customer email failed:", err);

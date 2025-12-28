@@ -1,8 +1,10 @@
-import { WHATSAPP_NUMBER, WHATSAPP_MESSAGE } from "../config/whatsapp";
+import { buildWhatsAppLink } from "../utils/whatsapp";
 
 const WhatsAppCTA = ({ variant = "floating" }) => {
 
-  const link = `https://wa.me/${WHATSAPP_NUMBER}?text=${WHATSAPP_MESSAGE}`;
+  const link = buildWhatsAppLink({
+    source: "Floating CTA",
+  });
 
   return (
     <a

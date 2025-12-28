@@ -1,35 +1,22 @@
 import { buildWhatsAppLink } from "../utils/whatsapp";
+import { FaWhatsapp } from "react-icons/fa";
 
-const WhatsAppCTA = ({ variant = "floating" }) => {
+// Accept `tour` and `source` as optional params so callers can customize the message
+const WhatsAppCTA = ({ variant = "floating", tour = null, source = "website", title = null}) => {
+    const href = buildWhatsAppLink({ tour, source });
 
-  const link = buildWhatsAppLink({
-    source: "Floating CTA",
-  });
-
-  return (
-    <a
-      href={link}
-      target="_blank"
-      rel="noopener noreferrer"
-      className={
-        variant === "floating"
-          ? "whatsapp-float"
-          : "whatsapp-inline"
-      }
-      aria-label="Chat on WhatsApp"
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 32 32"
-        width="28"
-        height="28"
-        fill="#25d366"
-      >
-        <path d="M19.11 17.32c-.29-.15-1.72-.85-1.99-.95-.27-.1-.46-.15-.66.15-.19.29-.76.95-.93 1.14-.17.19-.34.22-.63.07-.29-.15-1.22-.45-2.32-1.43-.86-.77-1.44-1.72-1.61-2.01-.17-.29-.02-.45.13-.59.13-.13.29-.34.44-.51.15-.17.19-.29.29-.48.1-.19.05-.37-.02-.51-.07-.15-.66-1.59-.91-2.18-.24-.58-.48-.5-.66-.51h-.56c-.19 0-.51.07-.78.37-.27.29-1.02 1-1.02 2.44 0 1.44 1.05 2.83 1.2 3.02.15.19 2.07 3.16 5.01 4.43.7.3 1.25.48 1.68.62.71.23 1.36.2 1.87.12.57-.08 1.72-.7 1.96-1.37.24-.66.24-1.23.17-1.37-.07-.13-.27-.22-.56-.37z" />
-        <path d="M16.04 2.4c-7.45 0-13.51 6.06-13.51 13.51 0 2.38.62 4.7 1.8 6.76L2.4 29.6l7.12-1.87c1.97 1.07 4.18 1.63 6.52 1.63h.01c7.45 0 13.51-6.06 13.51-13.51S23.49 2.4 16.04 2.4zm0 24.6c-2.03 0-4.02-.54-5.75-1.56l-.41-.24-4.23 1.11 1.13-4.12-.27-.43c-1.12-1.78-1.72-3.83-1.72-5.92 0-6.15 5-11.15 11.15-11.15s11.15 5 11.15 11.15S22.19 27 16.04 27z" />
-      </svg>
-    </a>
-  );
+    return (
+        <a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={variant === "floating" ? "whatsapp-float" : "whatsapp-inline"}
+        >
+            <FaWhatsapp size={20} color="#25d366" />
+            <span style={{ marginLeft: 4 }}>
+            {title || "Chat with us"}</span>
+        </a>
+    );
 };
 
 export default WhatsAppCTA;

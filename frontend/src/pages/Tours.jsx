@@ -9,7 +9,7 @@ export default function Tours() {
   // SEO — runs once
   useEffect(() => {
     setSEO({
-      title: "Sri Lanka Tour Packages | Gravity Tours",
+      title: "Sri Lanka Tour Packages | Gravityland Tours",
       description:
         "Explore curated Sri Lanka tour packages including beaches, wildlife safaris, cultural heritage, and adventure tours.",
     });

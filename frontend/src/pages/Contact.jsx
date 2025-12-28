@@ -34,9 +34,9 @@ const [tour, setTour] = useState("");
 
   useEffect(() => {
     setSEO({
-      title: "Contact Gravity Tours | Sri Lanka Travel Experts",
+      title: "Contact Gravityland Tours | Sri Lanka Travel Experts",
       description:
-        "Contact Gravity Tours to plan your perfect Sri Lanka holiday. Fast responses and custom itineraries.",
+        "Contact Gravityland Tours to plan your perfect Sri Lanka holiday. Fast responses and custom itineraries.",
     });
   }, []);
   
@@ -92,7 +92,7 @@ const validate = () => {
       country: "",
       message: ""
     });
-  } catch (err) {
+  } catch {
     setErrors({ submit: "Something went wrong. Please try again." });
   } finally {
     setLoading(false);
@@ -131,6 +131,37 @@ const validate = () => {
         />
         {errors.whatsapp && <p className="error">{errors.whatsapp}</p>}
 
+        <select name="pax" value={formData.pax} onChange={handleChange}>
+          <option value="">Number of Travelers</option>
+          <option value="1-2">1–2</option>
+          <option value="3-5">3–5</option>
+          <option value="6-10">6–10</option>
+          <option value="10+">10+</option>
+        </select>
+
+        <input
+          type="date"
+          name="startDate"
+          value={formData.startDate}
+          onChange={handleChange}
+        />
+
+        <input
+          type="date"
+          name="endDate"
+          value={formData.endDate}
+          onChange={handleChange}
+        />
+
+        <select name="budget" value={formData.budget} onChange={handleChange}>
+          <option value="">Approx Budget (USD)</option>
+          <option value="under-500">Under $500</option>
+          <option value="500-1000">$500–$1,000</option>
+          <option value="1000-2000">$1,000–$2,000</option>
+          <option value="2000+">$2,000+</option>
+        </select>
+
+
         <label>
           Tour Type *
           <select
@@ -156,19 +187,7 @@ const validate = () => {
         <button type="submit" disabled={loading}>
           {loading ? "Sending..." : "📩 Send Inquiry"}
         </button>
-        <a
-          href={buildWhatsAppLink({
-            tour: tour,
-            source: "Contact Page",
-          })}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 mt-4 text-green-600 font-semibold"
-        >
-          <FaWhatsapp size={20} color="#25d366"/>
-          Chat with us
-        </a>
-
+        <WhatsAppCTA variant="inline" tour={tour} source="Contact" title="Chat with us"/>
       </form>
 
       {success === true && (

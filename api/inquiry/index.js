@@ -114,17 +114,24 @@ module.exports = async function (context, req) {
     await resend.emails.send({
       from: "Gravityland Tours <noreply@gravitylandtours.com>",
       to: process.env.ADMIN_EMAIL,
-      subject: "New Tour Inquiry",
+      subject: `🚨 New Tour Inquiry – ${name}`,
       html: adminEmailHtml({ name, email, message, tour, pax, startDate, endDate, budget, country }),
     });
 
+    const adminWhatsappUrl =
+  `https://wa.me/94718336382?text=` +
+  encodeURIComponent(
+    `New inquiry from ${name}\nTour: ${tour}\nPax: ${pax}`
+  );
+
+context.log(`Admin WhatsApp alert: ${adminWhatsappUrl}`);
     // 3️ Send confirmation email to customer (non-blocking)
     try {
       await resend.emails.send({
         from: "Gravityland Tours <noreply@gravitylandtours.com>",
         to: email,
         subject: "We received your inquiry",
-        html: customerEmailHtml({ name, tour}),
+        html: customerEmailHtml({ name, adminWhatsappUrl}),
       });
     } catch (err) {
       context.log("Customer email failed:", err);

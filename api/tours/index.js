@@ -1,28 +1,24 @@
-const supabase = require('../lib/supabaseClient');
+const supabase = require("../lib/supabaseClient");
 
 module.exports = async function (context, req) {
   try {
     const { data, error } = await supabase
-      .from('tours')
-      .select('*')
-      .order('created_at', { ascending: false });
+      .from("tours")
+      .select("*")
+      .order("created_at", { ascending: false });
 
-    if (error) {
-      throw error;
-    }
+    if (error) throw error;
 
     context.res = {
       status: 200,
       body: data
     };
   } catch (err) {
-    context.log.error(err);
+    context.log.error("Tours error:", err);
 
     context.res = {
       status: 500,
-      body: {
-        error: 'Failed to fetch tours'
-      }
+      body: { error: "Failed to fetch tours" }
     };
   }
 };

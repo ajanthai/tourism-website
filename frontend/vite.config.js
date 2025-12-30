@@ -6,10 +6,10 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://agreeable-grass-0cc742210.3.azurestaticapps.net',
-        changeOrigin: true,
-        secure: true
+        target: 'http://localhost:7071',
+        changeOrigin: true
       }
     }
   }
 });
+

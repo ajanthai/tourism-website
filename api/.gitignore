@@ -1,2 +1,18 @@
+# Azure Functions
+local.settings.json
+bin/
+obj/
+
+# Node
 node_modules/
+npm-debug.log*
+yarn-error.log*
+
+# Vite / React
+dist/
+.vite/
+
+# Env files
 .env
+.env.local
+.env.*.local

@@ -12,7 +12,7 @@ export default function Header() {
         {/* LEFT — LOGO */}
         <div className="logo-column">
           <img
-            src="src/img/logo.jpeg"
+            src="images/logo-primary.jpeg"
             alt="Gravityland Tours Logo"
             className="logo"
           />

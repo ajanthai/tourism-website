@@ -39,7 +39,11 @@ jobs:
           app_location: "/frontend" # App source code path
           api_location: "api" # Api source code path - optional
           output_location: "dist" # Built app content directory - optional
-          app_build_command: "npm install && npm run build" # Command to build your app - optional
+          app_build_command: |
+            export VITE_SUPABASE_URL="${{ secrets.VITE_SUPABASE_URL }}"
+            export VITE_SUPABASE_ANON_KEY="${{ secrets.VITE_SUPABASE_ANON_KEY }}"
+            npm install
+            npm run build
           ###### End of Repository/Build Configurations ######
 
   close_pull_request_job:

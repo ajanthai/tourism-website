@@ -38,6 +38,10 @@ export default function Header() {
   const userName = user?.user_metadata?.name || "User";
   const avatarUrl = user?.user_metadata?.avatar_url;
 
+  console.log("SUPABASE URL:", import.meta.env.VITE_SUPABASE_URL);
+  console.log("SUPABASE KEY:", import.meta.env.VITE_SUPABASE_ANON_KEY?.slice(0, 10));
+
+
   return (
     <header className="site-header">
       <div className="header-inner">

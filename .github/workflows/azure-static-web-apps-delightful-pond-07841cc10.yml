@@ -36,10 +36,13 @@ jobs:
           npm ci
           npm run build
       - name: Install API dependencies (runner uses Node 20)
-        if: exists('api/package.json')
-        working-directory: ./api
         run: |
-          npm ci || true
+          if [ -f api/package.json ]; then
+            cd api
+            npm ci || true
+          else
+            echo "No api/package.json; skipping API dependency install"
+          fi
       - name: Install OIDC Client from Core Package
         run: npm install @actions/core@1.6.0 @actions/http-client
       - name: Get Id Token

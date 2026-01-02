@@ -88,9 +88,9 @@ jobs:
           # To ensure the deploy action uploads the actual built files, point app_location
           # directly at the build output folder and set output_location to the root (.)
           # so the action treats that folder as the app artifact root.
-          app_location: "./frontend/dist"
-          api_location: "" # Api deployment disabled here; deploy functions separately if needed
-          output_location: "."
+          app_location: "./frontend"
+          api_location: "api" # Api deployment disabled here; deploy functions separately if needed
+          output_location: "dist"
           github_id_token: ${{ steps.idtoken.outputs.result }}
           ###### End of Repository/Build Configurations ######
 

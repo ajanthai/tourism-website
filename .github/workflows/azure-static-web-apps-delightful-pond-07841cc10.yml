@@ -35,43 +35,21 @@ jobs:
         run: |
           npm ci
           npm run build
-      - name: Ensure vite.svg is present in build output
-        run: |
-          if [ -f frontend/public/vite.svg ]; then
-            mkdir -p frontend/dist
-            cp frontend/public/vite.svg frontend/dist/vite.svg || true
-          else
-            echo "No frontend/public/vite.svg found; skipping copy"
-          fi
       - name: Install API dependencies (runner uses Node 20)
+        if: exists('api/package.json')
+        working-directory: ./api
         run: |
-          if [ -f api/package.json ]; then
-            cd api
-            npm ci || true
-          else
-            echo "No api/package.json; skipping API dependency install"
-          fi
+          npm ci || true
       - name: Install OIDC Client from Core Package
         run: npm install @actions/core@1.6.0 @actions/http-client
-      - name: Debug list build output and MIME types
-        run: |
-          echo "Listing frontend/dist files"
-          ls -la frontend/dist || true
-          echo "MIME types for files in frontend/dist"
-          if command -v file >/dev/null 2>&1; then
-            find frontend/dist -type f -exec file --mime-type {} \; || true
-          else
-            echo "file command not available"
-          fi
       - name: Get Id Token
         uses: actions/github-script@v6
         id: idtoken
         with:
-          script: |
-            // use a unique local variable name to avoid collisions in the runner
-            const actionCore = require('@actions/core');
-            return await actionCore.getIDToken();
-          result-encoding: string
+           script: |
+               const coredemo = require('@actions/core')
+               return await coredemo.getIDToken()
+           result-encoding: string
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
@@ -80,59 +58,13 @@ jobs:
           action: "upload"
           # we've built the app on the runner with Node 20 above, so skip Azure's Oryx build
           skip_app_build: true
-          # Note: API build on Azure is skipped in some setups to avoid Oryx using an older Node version.
-          # If you want to deploy functions via this action, remove the api_location override below
-          # and consider allowing Azure to build them (or ensure Azure supports Node 20).
           ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
           # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
-          # To ensure the deploy action uploads the actual built files, point app_location
-          # directly at the build output folder and set output_location to the root (.)
-          # so the action treats that folder as the app artifact root.
-          app_location: "/frontend"
-          api_location: "api" # Api deployment disabled here; deploy functions separately if needed
-          output_location: "dist"
+          app_location: "./frontend" # App source code path
+          api_location: "api" # Api source code path - optional
+          output_location: "dist" # Built app content directory - optional
           github_id_token: ${{ steps.idtoken.outputs.result }}
           ###### End of Repository/Build Configurations ######
-
-      - name: Post-deploy verify deployed assets and content-types
-        run: |
-          set -euo pipefail
-          BASE_URL="https://delightful-pond-07841cc10.4.azurestaticapps.net"
-          echo "Checking root and index.html at: $BASE_URL"
-          echo "--- HEAD / ---"
-          curl -I -sS "$BASE_URL/" || true
-          echo "--- HEAD /index.html ---"
-          curl -I -sS "$BASE_URL/index.html" || true
-          echo "--- Fetch index.html and extract module scripts ---"
-          curl -sS "$BASE_URL/index.html" -o /tmp/deployed_index.html || true
-          # Extract script src attributes (robust, avoids perl-regex)
-          mapfile -t SCRIPT_PATHS < <(grep -Eo '<script[^>]+src="[^"]+' /tmp/deployed_index.html | sed -E 's/.*src="([^"]+)"?/\1/') || true
-          if [ ${#SCRIPT_PATHS[@]} -gt 0 ]; then
-            echo "Found script paths:"; printf '%s\n' "${SCRIPT_PATHS[@]}"
-            for p in "${SCRIPT_PATHS[@]}"; do
-              # skip absolute external URLs
-              if printf '%s' "$p" | grep -qE '^[a-zA-Z]+://'; then
-                echo "Skipping external script: $p"
-                continue
-              fi
-              if [[ "$p" != /* ]]; then
-                p="/$p"
-              fi
-              echo "--- HEAD $BASE_URL$p ---"
-              curl -I -sS "$BASE_URL$p" || true
-            done
-          else
-            echo "No script paths found in index.html"
-          fi
-          echo "--- Check common asset types (*.js, *.css, *.svg) in /assets ---"
-          for ext in js css svg; do
-            ASSET_FILE=$(grep -Eo "/assets/[^"]+\.$ext" /tmp/deployed_index.html | head -n1 || true)
-            if [ -n "$ASSET_FILE" ]; then
-              echo "Found asset $ASSET_FILE"; curl -I -sS "$BASE_URL$ASSET_FILE" || true
-            else
-              echo "No asset found for extension .$ext"
-            fi
-          done
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'

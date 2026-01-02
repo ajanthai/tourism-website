@@ -94,14 +94,11 @@ jobs:
           github_id_token: ${{ steps.idtoken.outputs.result }}
           ###### End of Repository/Build Configurations ######
 
-      - name: Post-deploy verify deployed assets and content-types
+      - name: Post-deploy: verify deployed assets and content-types
         run: |
           set -euo pipefail
-          BASE_URL="https://${{ env.AZURE_STATIC_WEB_APPS_DEFAULT_DOMAIN }}"
-          # Fallback if env not set - replace with your deployed site URL
-          if [ -z "${BASE_URL// }" ]; then
-            BASE_URL="https://delightful-pond-07841cc10.4.azurestaticapps.net"
-          fi
+          # Use the known deployed URL for this app. If you host elsewhere, update this.
+          BASE_URL="https://delightful-pond-07841cc10.4.azurestaticapps.net"
           echo "Checking root and index.html at: $BASE_URL"
           echo "--- HEAD / ---"
           curl -I -sS "$BASE_URL/" || true
@@ -111,20 +108,21 @@ jobs:
           curl -sS "$BASE_URL/index.html" -o /tmp/deployed_index.html || true
           SCRIPT_PATHS=$(grep -oP '<script[^>]+src="\K[^"]+' /tmp/deployed_index.html || true)
           echo "Found script paths:"; echo "$SCRIPT_PATHS"
-          for p in $SCRIPT_PATHS; do
-            # ensure leading slash
-            if [[ "$p" != /* ]]; then
-              p="/$p"
-            fi
-            echo "--- HEAD $BASE_URL$p ---"
-            curl -I -sS "$BASE_URL$p" || true
-          done
+          if [ -n "$SCRIPT_PATHS" ]; then
+            echo "$SCRIPT_PATHS" | while read -r p; do
+              if [[ "$p" != /* ]]; then
+                p="/$p"
+              fi
+              echo "--- HEAD $BASE_URL$p ---"
+              curl -I -sS "$BASE_URL$p" || true
+            done
+          else
+            echo "No script paths found in index.html"
+          fi
           echo "--- Check common asset types (*.js, *.css, *.svg) in /assets ---"
-          # Try a few common asset names if present
           for ext in js css svg; do
-            echo "Listing sample .$ext files under /assets (if any)"
-            # fetch listing via index if possible
-            ASSET_FILE=$(curl -sS "$BASE_URL/index.html" | grep -oP "/assets/[^"]+\.$ext" | head -n1 || true)
+            echo "Searching for .$ext assets in index.html"
+            ASSET_FILE=$(grep -oP "/assets/[^"]+\.$ext" /tmp/deployed_index.html | head -n1 || true)
             if [ -n "$ASSET_FILE" ]; then
               echo "Found asset: $ASSET_FILE"; curl -I -sS "$BASE_URL$ASSET_FILE" || true
             else

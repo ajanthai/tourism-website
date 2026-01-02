@@ -41,6 +41,23 @@ jobs:
             return await require('@actions/core').getIDToken()
           result-encoding: string
 
+      - name: Check Vite secrets presence (non-failing)
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          echo "Checking Vite build-time secrets (will not print values)"
+          if [ -z "${VITE_SUPABASE_URL}" ]; then
+            echo "VITE_SUPABASE_URL: MISSING"
+          else
+            echo "VITE_SUPABASE_URL: PRESENT"
+          fi
+          if [ -z "${VITE_SUPABASE_ANON_KEY}" ]; then
+            echo "VITE_SUPABASE_ANON_KEY: MISSING"
+          else
+            echo "VITE_SUPABASE_ANON_KEY: PRESENT"
+          fi
+
       - name: Build frontend on runner (inject Vite env from secrets)
         env:
           VITE_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}

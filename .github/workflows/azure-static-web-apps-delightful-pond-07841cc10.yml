@@ -85,12 +85,12 @@ jobs:
           # and consider allowing Azure to build them (or ensure Azure supports Node 20).
           ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
           # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
-          # Upload the built `frontend/dist` directory from the repo root. Setting app_location
-          # to the repo root and output_location to the built folder helps the deploy action
-          # pick up files with correct content-types.
-          app_location: "."
+          # The SWA action expects `output_location` to be relative to `app_location`.
+          # Use the frontend folder as the app location and `dist` as the build output
+          # produced by `npm run build` (i.e. `frontend/dist`).
+          app_location: "./frontend"
           api_location: "" # Api deployment disabled here; deploy functions separately if needed
-          output_location: "frontend/dist"
+          output_location: "dist"
           github_id_token: ${{ steps.idtoken.outputs.result }}
           ###### End of Repository/Build Configurations ######
 

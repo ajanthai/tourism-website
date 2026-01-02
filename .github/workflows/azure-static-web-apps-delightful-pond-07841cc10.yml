@@ -68,8 +68,9 @@ jobs:
         id: idtoken
         with:
           script: |
-            const core = require('@actions/core');
-            return await core.getIDToken();
+            // use a unique local variable name to avoid collisions in the runner
+            const actionCore = require('@actions/core');
+            return await actionCore.getIDToken();
           result-encoding: string
       - name: Build And Deploy
         id: builddeploy

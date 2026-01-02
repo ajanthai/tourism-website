@@ -53,6 +53,16 @@ jobs:
           fi
       - name: Install OIDC Client from Core Package
         run: npm install @actions/core@1.6.0 @actions/http-client
+      - name: Debug: list build output and MIME types
+        run: |
+          echo "Listing frontend/dist files"
+          ls -la frontend/dist || true
+          echo "MIME types for files in frontend/dist"
+          if command -v file >/dev/null 2>&1; then
+            find frontend/dist -type f -exec file --mime-type {} \; || true
+          else
+            echo "file command not available"
+          fi
       - name: Get Id Token
         uses: actions/github-script@v6
         id: idtoken
@@ -74,11 +84,12 @@ jobs:
           # and consider allowing Azure to build them (or ensure Azure supports Node 20).
           ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
           # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
-          app_location: "./frontend" # App source code path
-          # We're not deploying API functions via this workflow to avoid Oryx (Azure) running npm
-          # installs under Node 18 which cause EBADENGINE warnings. Deploy functions separately.
+          # Upload the built `frontend/dist` directory from the repo root. Setting app_location
+          # to the repo root and output_location to the built folder helps the deploy action
+          # pick up files with correct content-types.
+          app_location: "."
           api_location: "" # Api deployment disabled here; deploy functions separately if needed
-          output_location: "dist" # Built app content directory - optional
+          output_location: "frontend/dist"
           github_id_token: ${{ steps.idtoken.outputs.result }}
           ###### End of Repository/Build Configurations ######
 

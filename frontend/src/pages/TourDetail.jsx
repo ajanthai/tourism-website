@@ -10,12 +10,12 @@ export default function TourDetail() {
   // SEO — runs once
   useEffect(() => {
     setSEO({
-      title: "Sri Lanka Tour Packages | Gravity Tours",
+      title: "Sri Lanka Tour Packages | Gravityland Tours",
       description:
         "Explore curated Sri Lanka tour packages including beaches, wildlife safaris, cultural heritage, and adventure tours.",
     });
   }, []);
-  
+
   useEffect(() => {
     fetch(`/api/tours/${slug}`)
       .then(res => {
@@ -33,7 +33,7 @@ export default function TourDetail() {
   useEffect(() => {
     if (!tour) return;
     try {
-      document.title = `${tour.title} | Gravity Tours`;
+      document.title = `${tour.title} | Gravityland Tours`;
       const desc = tour.description ? tour.description.slice(0, 150) : '';
       const meta = document.querySelector('meta[name="description"]');
       if (meta) meta.setAttribute('content', desc);

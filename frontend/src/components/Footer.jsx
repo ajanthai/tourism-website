@@ -1,7 +1,11 @@
+import WhatsAppCTA from "./WhatsAppCTA";
 export default function Footer() {
   return (
     <footer style={styles.footer}>
-      <p>© {new Date().getFullYear()} Gravity Tours. All rights reserved.</p>
+      <p>© {new Date().getFullYear()} Gravityland Tours
+                                      info@gravitylandtours.com
+                                      Sri Lanka
+                                      All rights reserved. <WhatsAppCTA variant="inline" /></p>
     </footer>
   );
 }

@@ -4,9 +4,9 @@ import { setSEO } from "../utils/seo";
 export default function Home() {
   useEffect(() => {
     setSEO({
-      title: "Gravity Tours Sri Lanka | Explore Paradise",
+      title: "Gravityland Tours Sri Lanka | Explore Paradise",
       description:
-        "Discover unforgettable tours in Sri Lanka. Beaches, wildlife, culture and adventure with Gravity Tours.",
+        "Discover unforgettable tours in Sri Lanka. Beaches, wildlife, culture and adventure with Gravityland Tours.",
     });
   }, []);
 

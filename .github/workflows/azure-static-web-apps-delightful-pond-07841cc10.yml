@@ -53,7 +53,7 @@ jobs:
           fi
       - name: Install OIDC Client from Core Package
         run: npm install @actions/core@1.6.0 @actions/http-client
-      - name: Debug: list build output and MIME types
+      - name: Debug list build output and MIME types
         run: |
           echo "Listing frontend/dist files"
           ls -la frontend/dist || true

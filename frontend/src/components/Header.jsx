@@ -1,38 +1,47 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import "./Header.css";
-import { supabase } from "../lib/supabaseClient";
+import { supabaseReady, getSupabase } from "../lib/supabaseClient";
 
 export default function Header() {
   const [open, setOpen] = useState(false);
   const [user, setUser] = useState(null);
 
   useEffect(() => {
+    let listenerCleanup = null;
     const loadSession = async () => {
-      const { data } = await supabase.auth.getSession();
+      const client = await supabaseReady;
+      if (!client) return;
+      const { data } = await client.auth.getSession();
       setUser(data?.session?.user ?? null);
+
+      const { data: listener } = client.auth.onAuthStateChange(
+        (_event, session) => {
+          setUser(session?.user ?? null);
+        }
+      );
+
+      listenerCleanup = () => listener.subscription.unsubscribe();
     };
 
     loadSession();
 
-    const { data: listener } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setUser(session?.user ?? null);
-      }
-    );
-
-    return () => listener.subscription.unsubscribe();
+    return () => {
+      if (listenerCleanup) listenerCleanup();
+    };
   }, []);
 
   const handleLogin = async () => {
-    await supabase.auth.signInWithOAuth({
+    const client = getSupabase();
+    await client.auth.signInWithOAuth({
       provider: "google",
       options: { redirectTo: window.location.origin },
     });
   };
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    const client = getSupabase();
+    await client.auth.signOut();
   };
 
   const userName = user?.user_metadata?.name || "User";

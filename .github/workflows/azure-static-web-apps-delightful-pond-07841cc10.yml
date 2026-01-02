@@ -94,6 +94,44 @@ jobs:
           github_id_token: ${{ steps.idtoken.outputs.result }}
           ###### End of Repository/Build Configurations ######
 
+      - name: Post-deploy: verify deployed assets and content-types
+        run: |
+          set -euo pipefail
+          BASE_URL="https://${{ env.AZURE_STATIC_WEB_APPS_DEFAULT_DOMAIN }}"
+          # Fallback if env not set - replace with your deployed site URL
+          if [ -z "${BASE_URL// }" ]; then
+            BASE_URL="https://delightful-pond-07841cc10.4.azurestaticapps.net"
+          fi
+          echo "Checking root and index.html at: $BASE_URL"
+          echo "--- HEAD / ---"
+          curl -I -sS "$BASE_URL/" || true
+          echo "--- HEAD /index.html ---"
+          curl -I -sS "$BASE_URL/index.html" || true
+          echo "--- Fetch index.html and extract module scripts ---"
+          curl -sS "$BASE_URL/index.html" -o /tmp/deployed_index.html || true
+          SCRIPT_PATHS=$(grep -oP '<script[^>]+src="\K[^"]+' /tmp/deployed_index.html || true)
+          echo "Found script paths:"; echo "$SCRIPT_PATHS"
+          for p in $SCRIPT_PATHS; do
+            # ensure leading slash
+            if [[ "$p" != /* ]]; then
+              p="/$p"
+            fi
+            echo "--- HEAD $BASE_URL$p ---"
+            curl -I -sS "$BASE_URL$p" || true
+          done
+          echo "--- Check common asset types (*.js, *.css, *.svg) in /assets ---"
+          # Try a few common asset names if present
+          for ext in js css svg; do
+            echo "Listing sample .$ext files under /assets (if any)"
+            # fetch listing via index if possible
+            ASSET_FILE=$(curl -sS "$BASE_URL/index.html" | grep -oP "/assets/[^"]+\.$ext" | head -n1 || true)
+            if [ -n "$ASSET_FILE" ]; then
+              echo "Found asset: $ASSET_FILE"; curl -I -sS "$BASE_URL$ASSET_FILE" || true
+            else
+              echo "No asset found for extension .$ext"
+            fi
+          done
+
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
     runs-on: ubuntu-latest

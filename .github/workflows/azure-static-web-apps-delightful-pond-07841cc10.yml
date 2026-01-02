@@ -37,8 +37,8 @@ jobs:
         id: idtoken
         with:
           script: |
-            const core = require('@actions/core')
-            return await core.getIDToken()
+            // avoid declaring 'core' (duplicate declaration across github-script runs)
+            return await require('@actions/core').getIDToken()
           result-encoding: string
 
       - name: Build frontend on runner (inject Vite env from secrets)

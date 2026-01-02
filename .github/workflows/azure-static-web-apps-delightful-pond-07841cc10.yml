@@ -26,6 +26,20 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+      - name: Verify node & npm
+        run: |
+          node -v
+          npm -v
+      - name: Install & build frontend (runner uses Node 20)
+        working-directory: ./frontend
+        run: |
+          npm ci
+          npm run build
+      - name: Install API dependencies (runner uses Node 20)
+        if: exists('api/package.json')
+        working-directory: ./api
+        run: |
+          npm ci || true
       - name: Install OIDC Client from Core Package
         run: npm install @actions/core@1.6.0 @actions/http-client
       - name: Get Id Token
@@ -42,6 +56,8 @@ jobs:
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_DELIGHTFUL_POND_07841CC10 }}
           action: "upload"
+          # we've built the app on the runner with Node 20 above, so skip Azure's Oryx build
+          skip_app_build: true
           ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
           # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
           app_location: "./frontend" # App source code path

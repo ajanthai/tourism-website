@@ -35,6 +35,14 @@ jobs:
         run: |
           npm ci
           npm run build
+      - name: Ensure vite.svg is present in build output
+        run: |
+          if [ -f frontend/public/vite.svg ]; then
+            mkdir -p frontend/dist
+            cp frontend/public/vite.svg frontend/dist/vite.svg || true
+          else
+            echo "No frontend/public/vite.svg found; skipping copy"
+          fi
       - name: Install API dependencies (runner uses Node 20)
         run: |
           if [ -f api/package.json ]; then
@@ -61,6 +69,8 @@ jobs:
           action: "upload"
           # we've built the app on the runner with Node 20 above, so skip Azure's Oryx build
           skip_app_build: true
+          # also skip API build on Azure so we don't get Oryx using Node 18 for functions
+          skip_api_build: true
           ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
           # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
           app_location: "./frontend" # App source code path

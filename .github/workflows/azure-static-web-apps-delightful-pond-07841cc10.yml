@@ -24,7 +24,7 @@ jobs:
         uses: actions/setup-node@v4 # Ensure you use v4 or later
         with:
           node-version: '20' # Or '20.x' for the latest patch of 20
-      - run: npm ci
+      - run: npm i
       - run: npm test
       - name: Build And Deploy
         id: builddeploy

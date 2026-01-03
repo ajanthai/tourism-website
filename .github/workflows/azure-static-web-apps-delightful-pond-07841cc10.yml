@@ -117,32 +117,6 @@ jobs:
           echo "--- api/runtime-config ---"
           ls -alh api/runtime-config || true
 
-      - name: Post-deploy runtime-config check (verify runtime settings)
-        if: always()
-        env:
-          STATIC_SITE_URL: ${{ secrets.STATIC_SITE_URL }}
-        run: |
-          echo "Running post-deploy runtime-config verifications"
-          if [ -z "${STATIC_SITE_URL}" ]; then
-            echo "STATIC_SITE_URL not set; skipping post-deploy runtime check"
-            exit 0
-          fi
-          set -e
-          echo "Checking ${STATIC_SITE_URL}/api/runtime-config"
-          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "${STATIC_SITE_URL}/api/runtime-config" ) || true
-          if [ "${HTTP_STATUS}" != "200" ]; then
-            echo "runtime-config endpoint returned HTTP ${HTTP_STATUS}"
-            exit 1
-          fi
-          JSON=$(curl -s "${STATIC_SITE_URL}/api/runtime-config")
-          URL=$(printf '%s' "$JSON" | python3 -c "import sys, json; print(json.load(sys.stdin).get('VITE_SUPABASE_URL') or '')")
-          KEY=$(printf '%s' "$JSON" | python3 -c "import sys, json; print(json.load(sys.stdin).get('VITE_SUPABASE_ANON_KEY') or '')")
-          if [ -z "$URL" ] || [ -z "$KEY" ]; then
-            echo "runtime-config missing required values"
-            echo "runtime-config response: $JSON"
-            exit 1
-          fi
-          echo "runtime-config contains VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY"
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'

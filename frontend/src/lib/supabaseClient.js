@@ -10,7 +10,7 @@ const buildKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 async function fetchRuntimeConfig() {
   try {
-    const res = await fetch('/api/runtime-config');
+    const res = await fetch('/api/hello');
     if (!res.ok) return {};
     return await res.json();
   } catch (err) {

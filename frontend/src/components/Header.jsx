@@ -32,7 +32,11 @@ export default function Header() {
   }, []);
 
   const handleLogin = async () => {
-    const client = getSupabase();
+    const client = await supabaseReady;
+    if (!client) {
+      console.error('Supabase client not available; check configuration');
+      return;
+    }
     await client.auth.signInWithOAuth({
       provider: "google",
       options: { redirectTo: window.location.origin },
@@ -40,7 +44,11 @@ export default function Header() {
   };
 
   const handleLogout = async () => {
-    const client = getSupabase();
+    const client = await supabaseReady;
+    if (!client) {
+      console.error('Supabase client not available; check configuration');
+      return;
+    }
     await client.auth.signOut();
   };
 

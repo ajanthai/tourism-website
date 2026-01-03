@@ -68,6 +68,23 @@ jobs:
           npm ci
           npm run build
 
+      - name: Verify built assets contain Supabase URL (build-time check)
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+        run: |
+          echo "Verifying built assets for embedded Supabase URL"
+          if [ -z "${SUPABASE_URL}" ]; then
+            echo "SUPABASE_URL secret not set; skipping embed verification"
+            exit 0
+          fi
+          cd frontend/dist || (echo "dist not found" && exit 1)
+          if grep -R --fixed-strings "${SUPABASE_URL}" . >/dev/null 2>&1; then
+            echo "Supabase URL found in built assets (embed successful)"
+          else
+            echo "Supabase URL NOT found in built assets — build-time embedding failed"
+            exit 1
+          fi
+
       - name: Deploy built frontend (upload dist) to Azure Static Web Apps
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
@@ -81,6 +98,33 @@ jobs:
           output_location: "dist" # Built app content directory - optional
           github_id_token: ${{ steps.idtoken.outputs.result }}
           ###### End of Repository/Build Configurations ######
+
+      - name: Post-deploy runtime-config check (verify runtime settings)
+        if: always()
+        env:
+          STATIC_SITE_URL: ${{ secrets.STATIC_SITE_URL }}
+        run: |
+          echo "Running post-deploy runtime-config verification"
+          if [ -z "${STATIC_SITE_URL}" ]; then
+            echo "STATIC_SITE_URL not set; skipping post-deploy runtime check"
+            exit 0
+          fi
+          set -e
+          echo "Checking ${STATIC_SITE_URL}/api/runtime-config"
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "${STATIC_SITE_URL}/api/runtime-config" ) || true
+          if [ "${HTTP_STATUS}" != "200" ]; then
+            echo "runtime-config endpoint returned HTTP ${HTTP_STATUS}"
+            exit 1
+          fi
+          JSON=$(curl -s "${STATIC_SITE_URL}/api/runtime-config")
+          URL=$(printf '%s' "$JSON" | python3 -c "import sys, json; print(json.load(sys.stdin).get('VITE_SUPABASE_URL') or '')")
+          KEY=$(printf '%s' "$JSON" | python3 -c "import sys, json; print(json.load(sys.stdin).get('VITE_SUPABASE_ANON_KEY') or '')")
+          if [ -z "$URL" ] || [ -z "$KEY" ]; then
+            echo "runtime-config missing required values"
+            echo "runtime-config response: $JSON"
+            exit 1
+          fi
+          echo "runtime-config contains VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY"
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'

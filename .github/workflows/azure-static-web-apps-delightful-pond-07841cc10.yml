@@ -122,7 +122,7 @@ jobs:
         env:
           STATIC_SITE_URL: ${{ secrets.STATIC_SITE_URL }}
         run: |
-          echo "Running post-deploy runtime-config verification"
+          echo "Running post-deploy runtime-config verifications"
           if [ -z "${STATIC_SITE_URL}" ]; then
             echo "STATIC_SITE_URL not set; skipping post-deploy runtime check"
             exit 0
